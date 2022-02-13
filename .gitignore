@@ -1,4 +1,5 @@
 node_modules/
+.scannerwork/
 package-lock.json
 requests.json
 config.json

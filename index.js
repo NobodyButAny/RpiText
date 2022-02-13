@@ -23,9 +23,14 @@ client.once('ready', () => {
 });
 
 client.globalInterval.subscribe(()=>{
-	const objArray = JSON.parse(fs.readdirSync('./requests.json')).array; 
-	objArray.forEach(el => el.expire = parseInt(el.expire) - 1000);
+	const obj = JSON.parse(fs.readdirSync('./requests.json')); 
 	
+	obj.array.forEach(el => el.expire = parseInt(el.expire) - 1000);
+	sendLines(obj.array[0].author,obj.array[0].message);
+	obj.array.push(obj.array.shift());
+	obj.array = obj.array.filter(el => el.expire > 0);
+
+	fs.writeFileSync('./requests.json',JSON.stringify(obj));
 });
 
 client.on('interactionCreate', async interaction => {
