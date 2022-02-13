@@ -11,14 +11,14 @@ module.exports = {
 				.setRequired(true)),
 	
 	async execute({interaction,client}) {
-		const requests = JSON.parse(fs.readFileSync('../requests.json'));
+		const requests = JSON.parse(fs.readFileSync('commands\\requests.json'));
 		
 		const member = interaction.member;
 		const author = member.nickname ? member.nickname : member.user.username;
-		let message = interaction.options.getString('text');
+		const message = interaction.options.getString('text');
 		
-		requests.array.append() = {message,author,expire:10000};
-		fs.writeFileSync('../requests.json',JSON.stringify(requests));
+		requests.array.push({message,author,expire:10000});
+		fs.writeFileSync('commands\\requests.json',JSON.stringify(requests));
 
 		await interaction.reply(`[${author}] - ${message}`);
 	},

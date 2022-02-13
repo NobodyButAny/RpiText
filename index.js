@@ -20,18 +20,19 @@ commandFiles.forEach(file => {
 client.once('ready', () => {
 	console.log('Ready!');
 	client.globalInterval = interval(1000);
-});
 
-client.globalInterval.subscribe(()=>{
-	const obj = JSON.parse(fs.readdirSync('./requests.json')); 
+	client.globalInterval.subscribe(()=>{
+		const obj = JSON.parse( fs.readFileSync('./commands/requests.json') ); 
+		if(obj.array == '') return;
+		sendLines(obj.array[0].author,obj.array[0].message);
+		obj.array.forEach(e => e.expire = parseInt(e.expire)-1000);
+		obj.array.push(obj.array.shift());
+		obj.array = obj.array.filter(el => el.expire > 0);
 	
-	obj.array.forEach(el => el.expire = parseInt(el.expire) - 1000);
-	sendLines(obj.array[0].author,obj.array[0].message);
-	obj.array.push(obj.array.shift());
-	obj.array = obj.array.filter(el => el.expire > 0);
-
-	fs.writeFileSync('./requests.json',JSON.stringify(obj));
+		fs.writeFileSync('./commands/requests.json',JSON.stringify(obj));
+	});
 });
+
 
 client.on('interactionCreate', async interaction => {
 	if (!interaction.isCommand()) return;
