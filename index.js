@@ -2,20 +2,31 @@
 const fs = require('fs');
 const { Client, Intents, Collection } = require('discord.js');
 const { token } = require('./config.json');
+const { interval } = require('rxjs');
+const { sendLines } = require('./utils.js');
 
 const client = new Client({
 	intents: [Intents.FLAGS.GUILDS]
 });
 
 client.commands = new Collection();
-const commandFiles = fs.readdirSync('./commands').filter(file => file.endsWith('.js'));
 
+const commandFiles = fs.readdirSync('./commands').filter(file => file.endsWith('.js'));
 commandFiles.forEach(file => {
 	const command = require(`./commands/${file}`);
 	client.commands.set(command.data.name, command);
 });
 
-client.once('ready', () => console.log('Ready!'));
+client.once('ready', () => {
+	console.log('Ready!');
+	client.globalInterval = interval(1000);
+});
+
+client.globalInterval.subscribe(()=>{
+	const objArray = JSON.parse(fs.readdirSync('./requests.json')).array; 
+	objArray.forEach(el => el.expire = parseInt(el.expire) - 1000);
+	
+});
 
 client.on('interactionCreate', async interaction => {
 	if (!interaction.isCommand()) return;
@@ -25,7 +36,7 @@ client.on('interactionCreate', async interaction => {
 	if (!command) return;
 
 	try {
-		await command.execute(interaction);
+		await command.execute({interaction,client});
 	} catch (error) {
 		console.error(error);
 		await interaction.reply({ content: 'There was an error while executing this command!', ephemeral: true });
