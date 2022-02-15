@@ -17,7 +17,7 @@ module.exports = {
 		const author = member.nickname ? member.nickname : member.user.username;
 		const message = interaction.options.getString('text');
 		
-		requests.array.push({message,author,expire:10000});
+		requests.array.push({message,author,expire:20000});
 		fs.writeFileSync('commands\\requests.json',JSON.stringify(requests));
 
 		await interaction.reply(`[${author}] - ${message}`);
